@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Made by Aleem Ladha @LadhaAleem
 # Create config.yml file with provided content
 cat <<EOF > config.yml
 ludus:
