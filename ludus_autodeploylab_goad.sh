@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Create goadconfig.yml file with provided content
+# Summoning the Seven Kingdoms with GOAD (Game of Active Directory)
+
+# Creating goadconfig.yml file with noble house assignments
 cat <<EOF > goadconfig.yml
 ludus:
   - vm_name: "{{ range_id }}-GOAD-DC01"
@@ -61,13 +63,13 @@ ludus:
       block_internet: false
 EOF
 
-# Set the config using ludus range command
+# Setting up the battalions with ludus range command
 ludus range config set -f goadconfig.yml
 
-# Deploy the range
+# Deploying the legions
 ludus range deploy
 
-# Function to check deployment status
+# Function to consult the Red Priests for deployment status
 check_status() {
     status=$(ludus range status | grep "SUCCESS")
     if [ -z "$status" ]; then
@@ -77,25 +79,22 @@ check_status() {
     fi
 }
 
-# Wait until deployment is successful
+# Waiting for ravens to return with news of successful deployment
 while ! check_status; do
     echo "Deployment is not yet successful. Waiting..."
     sleep 60  # Adjust sleep time as needed
 done
 
-# Once deployment is successful, proceed with additional steps
-echo "Deployment is successful. Updating the servers..."
+# Rejoice! The deployment has succeeded, let's update the lords of the servers
 
-# Get the userID
+# Consulting the Maesters for the userID
 userID=$(ludus range list --json | jq -r '.userID')
 
-# Update the command with the extracted userID
+# Sending raven to update the noble server of House GOAD-SRV02
 updatesrv02="ludus testing update -n ${userID}-GOAD-SRV02"
-
-# Execute the updated command
 $updatesrv02
 
-# Check logs continuously until the desired output is obtained
+# Gazing into the flames, awaiting visions of successful updates
 echo "Waiting for updates to be installed..."
 while true; do
     logs=$(ludus range logs)
@@ -103,36 +102,34 @@ while true; do
     sleep 120  # Adjust sleep time as needed
 done
 
-# Continue with other commands after updates are complete
-echo "Updates are complete. Continuing with other commands..."
+# The updates are complete! Continuing with other commands...
 
-# Install required Python packages
+# Channeling the wisdom of the Maesters to install required spells (Python packages)
+echo "Installing required spells (Python packages)..."
 python3 -m pip install ansible-core
 python3 -m pip install pywinrm
 
-# Clone GOAD repository
+# Embarking on a journey to the lands of GOAD, accompanied by loyal bannermen
+echo "Gathering the banners of GOAD..."
 git clone https://github.com/Orange-Cyberdefense/GOAD
 
-# Change directory to GOAD/ansible
+# Venturing into the halls of GOAD/ansible
 cd GOAD/ansible || exit
 
-# Create inventory.yml file with provided content
+# Crafting the sigils and banners of the noble houses in inventory.yml
 cat <<EOF > inventory.yml
 [default]
 ; Note: ansible_host *MUST* be an IPv4 address or setting things like DNS
 ; servers will break.
 ; ------------------------------------------------
-; sevenkingdoms.local
+; Winterfell
 ; ------------------------------------------------
 dc01 ansible_host=10.RANGENUMBER.10.10 dns_domain=dc01 dict_key=dc01
-;ws01 ansible_host=10.RANGENUMBER.10.30 dns_domain=dc01 dict_key=ws01
-; ------------------------------------------------
-; north.sevenkingdoms.local
+; The Eyrie
 ; ------------------------------------------------
 dc02 ansible_host=10.RANGENUMBER.10.11 dns_domain=dc01 dict_key=dc02
 srv02 ansible_host=10.RANGENUMBER.10.22 dns_domain=dc02 dict_key=srv02
-; ------------------------------------------------
-; essos.local
+; Castle Black
 ; ------------------------------------------------
 dc03 ansible_host=10.RANGENUMBER.10.12 dns_domain=dc03 dict_key=dc03
 srv03 ansible_host=10.RANGENUMBER.10.23 dns_domain=dc03 dict_key=srv03
@@ -167,17 +164,21 @@ ad_http_proxy=http://x.x.x.x:xxxx
 ad_https_proxy=http://x.x.x.x:xxxx
 EOF
 
-# Clone GOAD repository and install Ansible roles
+# Unleashing the fury of Ansible, rallying the troops for provisioning
+echo "Unleashing the fury of Ansible, rallying the troops for provisioning..."
 ansible-galaxy install -r requirements.yml
 
-# Update inventory file with ludus range information
+# Updating the map with ludus range information
 export RANGENUMBER=$(ludus range list --json | jq '.rangeNumber')
 sed -i "s/RANGENUMBER/$RANGENUMBER/g" inventory.yml
 
-# Set up environment variables for Ansible
+# Preparing the battle plans with environment variables for Ansible
 export ANSIBLE_INVENTORY=inventory.yml
 export ANSIBLE_COMMAND="ansible-playbook -i ../ad/GOAD/data/inventory -i $ANSIBLE_INVENTORY"
 export LAB="GOAD"
 
-# Run provisioning script
+# Commencing the great journey with the provisioning script
+echo "Commencing the great journey with the provisioning script..."
 ../scripts/provisionning.sh
+
+# The saga continues... Valar Morghulis!
