@@ -1,6 +1,8 @@
 #!/bin/bash
-# Made by Aleem Ladha @LadhaAleem
-# Create config.yml file with provided content
+
+# This script is like summoning a cyber-genie! It'll weave your lab environment with magic spells. ✨💻
+#Made by AleemLadha @LadhaAleem
+# Prepare the lab configuration
 cat <<EOF > config.yml
 ludus:
   - vm_name: "{{ range_id }}-NHA-DC01"
@@ -61,90 +63,61 @@ ludus:
       block_internet: false       
 EOF
 
-# Set the config using ludus range command
+# Set up Ludus range with the configured VMs
 ludus range config set -f config.yml
-
-# Deploy the range
 ludus range deploy
 
-# Function to check deployment status
+# Function to ensure deployment success
 check_status() {
     status=$(ludus range status | grep "SUCCESS")
-    if [ -z "$status" ]; then
-        return 1
-    else
-        return 0
-    fi
+    [ -z "$status" ] && return 1 || return 0
 }
 
 # Wait until deployment is successful
 while ! check_status; do
-    echo "Deployment is not yet successful. Waiting..."
-    sleep 60  # Adjust sleep time as needed
+    echo "The magic circle is forming... Lab deployment is in progress. Hold tight!"
+    sleep 60
 done
 
-# Once deployment is successful, proceed with additional steps
-echo "Deployment is successful. Continuing with additional steps..."
+echo "The spells have been cast, and the lab is ready for enchantment!"
 
-# Install required Python packages
-python3 -m pip install ansible-core
-python3 -m pip install pywinrm
-
-# Clone GOAD repository
+# Prepare the lab environment further
+python3 -m pip install ansible-core pywinrm
 git clone https://github.com/Orange-Cyberdefense/GOAD
-
-# Change directory to GOAD/ansible
 cd GOAD/ansible || exit
 
-# Create inventory.yml file with provided content
+# Configure inventory for Ansible
 cat <<EOF > inventory.yml
+# Cyber Nexus - A gathering place for digital warriors
 [default]
-; Note: ansible_host *MUST* be an IPv4 address or setting things like DNS
-; servers will break.
-; ------------------------------------------------
-; ninja.local
-; ------------------------------------------------
 dc01 ansible_host=10.RANGENUMBER.10.30 dns_domain=dc01 dns_domain=dc02 dict_key=dc01
 dc02 ansible_host=10.RANGENUMBER.10.31 dns_domain=dc02 dict_key=dc02
 srv01 ansible_host=10.RANGENUMBER.10.32 dns_domain=dc02 dict_key=srv01
 srv02 ansible_host=10.RANGENUMBER.10.33 dns_domain=dc02 dict_key=srv02
 srv03 ansible_host=10.RANGENUMBER.10.34 dns_domain=dc02 dict_key=srv03
 
-
 [all:vars]
-; domain_name : folder inside ad/
 domain_name=NHA
-
 force_dns_server=yes
 dns_server=10.RANGENUMBER.10.254
-
 two_adapters=no
-; adapter created by vagrant and virtualbox (comment if you use vmware)
 nat_adapter=Ethernet
 domain_adapter=Ethernet
-
-; adapter created by vagrant and vmware (uncomment if you use vmware)
-; nat_adapter=Ethernet0
-; domain_adapter=Ethernet1
-
-; winrm connection (windows)
 ansible_user=localuser
 ansible_password=password
 ansible_connection=winrm
 ansible_winrm_server_cert_validation=ignore
 ansible_winrm_operation_timeout_sec=400
 ansible_winrm_read_timeout_sec=500
-
-; proxy settings (the lab need internet for some install, if you are behind a proxy you should set the proxy here)
 enable_http_proxy=no
 ad_http_proxy=http://x.x.x.x:xxxx
 ad_https_proxy=http://x.x.x.x:xxxx
 EOF
 
-# Clone GOAD repository and install Ansible roles
+# Install required Ansible roles
 ansible-galaxy install -r requirements.yml
 
-# Update inventory file with ludus range information
+# Update inventory file with Ludus range information
 export RANGENUMBER=$(ludus range list --json | jq '.rangeNumber')
 sed -i "s/RANGENUMBER/$RANGENUMBER/g" inventory.yml
 
@@ -153,5 +126,7 @@ export ANSIBLE_INVENTORY=inventory.yml
 export ANSIBLE_COMMAND="ansible-playbook -i ../ad/NHA/data/inventory -i $ANSIBLE_INVENTORY"
 export LAB="NHA"
 
-# Run provisioning script
+# Begin the magical provisioning process
 ../scripts/provisionning.sh
+
+echo "The lab has been summoned into existence. Let the digital adventures begin!"
