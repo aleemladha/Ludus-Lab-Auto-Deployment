@@ -100,7 +100,7 @@ echo "Waiting for updates to be installed..."
 while true; do
     logs=$(ludus range logs)
     echo "$logs" | grep -i "PLAY RECAP" && break
-    sleep 10  # Adjust sleep time as needed
+    sleep 120  # Adjust sleep time as needed
 done
 
 # Continue with other commands after updates are complete
