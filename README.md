@@ -4,6 +4,7 @@ NINJA HACKER ACADEMY (NHA) is written as a training challenge where GOAD was wri
 
 How to install.
 
+```bash
 wget https://raw.githubusercontent.com/aleemladha/Ludus-Lab-Auto-Deployment/main/ludus_autodeploy_nha_lab.sh && chmod +x ludus_autodeploy_nha_lab.sh && ./ludus_autodeploy_nha_lab.sh
-
+```
 
